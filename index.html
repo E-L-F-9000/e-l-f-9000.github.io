@@ -30,6 +30,9 @@ button:focus-visible{outline:3px solid #1E4E52;outline-offset:2px}
 .door.open .win{opacity:1;visibility:visible;transform:scale(1);transition:opacity .45s ease .1s,transform .45s ease .1s,visibility 0s}
 .paper{position:absolute;top:0;left:0;right:0;bottom:0;z-index:-1;border:2.5px dotted rgba(255,250,235,.95);border-radius:2px}
 .win .paper,.back .paper{border-color:transparent}
+/* The window's paper runs 2px under the flap at the hinge, so no hairline of background shows at the fold. */
+.door:not(.right) .win .paper{left:-2px}
+.door.right .win .paper{right:-2px}
 .win .paper{background:#FBF3DF;box-shadow:inset 7px 0 10px -5px rgba(80,50,20,.5),inset 0 3px 6px rgba(80,50,20,.3)}
 .door.right .win .paper{box-shadow:inset -7px 0 10px -5px rgba(80,50,20,.5),inset 0 3px 6px rgba(80,50,20,.3)}
 .lbl{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#5E4A3B}

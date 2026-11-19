@@ -121,8 +121,8 @@ var opened = {};
 function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
 function ragged(){
- var n = 18, step = 100/n, pts = [], i, v;
- function t(){ return (0.6 + Math.random()*0.8).toFixed(2); }
+ var n = 14, step = 100/n, pts = [], i, v;
+ function t(){ return (1.8 + Math.random()*2.2).toFixed(2); }
  for (i = 0; i < n; i++) { v = i*step; pts.push(v.toFixed(2)+'% 0%', (v+step/2).toFixed(2)+'% '+t()+'%'); }
  for (i = 0; i < n; i++) { v = i*step; pts.push('100% '+v.toFixed(2)+'%', (100-t())+'% '+(v+step/2).toFixed(2)+'%'); }
  for (i = 0; i < n; i++) { v = 100-i*step; pts.push(v.toFixed(2)+'% 100%', (v-step/2).toFixed(2)+'% '+(100-t())+'%'); }

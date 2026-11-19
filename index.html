@@ -29,8 +29,6 @@ button:focus-visible{outline:3px solid #1E4E52;outline-offset:2px}
  opacity:0;visibility:hidden;transform:scale(.96);transition:opacity .3s ease,transform .3s ease,visibility 0s linear .3s}
 .door.open .win{opacity:1;visibility:visible;transform:scale(1);transition:opacity .45s ease .1s,transform .45s ease .1s,visibility 0s}
 .paper{position:absolute;top:0;left:0;right:0;bottom:0;z-index:-1;border:2.5px dotted rgba(255,250,235,.95);border-radius:2px}
-.door.open .paper,.door.swing .paper{filter:url(#tear)}
-@media (pointer:coarse){.door .paper{filter:none!important}}
 .win .paper{background:#FBF3DF;box-shadow:inset 7px 0 10px -5px rgba(80,50,20,.5),inset 0 3px 6px rgba(80,50,20,.3)}
 .door.right .win .paper{box-shadow:inset -7px 0 10px -5px rgba(80,50,20,.5),inset 0 3px 6px rgba(80,50,20,.3)}
 .lbl{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#5E4A3B}
@@ -103,6 +101,7 @@ button:focus-visible{outline:3px solid #1E4E52;outline-offset:2px}
 
 <script>
 // The sheet's script publishes this year's pairings here (first names only).
+var touch = window.matchMedia && matchMedia('(pointer: coarse)').matches; // phones and tablets
 var FEED = 'https://script.google.com/macros/s/AKfycbzUYef0UB_Vp5N_he_UJQx8tYlkBO44qAo1GSGg8YUjV7czOR53dnLBvBnXkVbZGyp3/exec?format=json';
 
 // Door centres, as a percentage of the picture's width and height. Spare spots take anyone new.
@@ -121,8 +120,8 @@ var opened = {};
 function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
 function ragged(){
- var n = 14, step = 100/n, pts = [], i, v;
- function t(){ return (1.8 + Math.random()*2.2).toFixed(2); }
+ var n = 18, step = 100/n, pts = [], i, v;
+ function t(){ return (0.6 + Math.random()*0.8).toFixed(2); }
  for (i = 0; i < n; i++) { v = i*step; pts.push(v.toFixed(2)+'% 0%', (v+step/2).toFixed(2)+'% '+t()+'%'); }
  for (i = 0; i < n; i++) { v = i*step; pts.push('100% '+v.toFixed(2)+'%', (100-t())+'% '+(v+step/2).toFixed(2)+'%'); }
  for (i = 0; i < n; i++) { v = 100-i*step; pts.push(v.toFixed(2)+'% 100%', (v-step/2).toFixed(2)+'% '+(100-t())+'%'); }
@@ -149,8 +148,8 @@ function makeDoor(key, cx0, cy0, w, h, inner, frontName) {
  d.querySelector('.win').addEventListener('click', toggle);
  leaf.addEventListener('click', toggle);
  d._label = label;
- // Phones skip the paper filter (memory), so give the paper a cut, perforated outline instead.
- if (touch) Array.prototype.forEach.call(d.querySelectorAll('.paper'), function(p){ var r = ragged(); p.style.webkitClipPath = r; p.style.clipPath = r; });
+ // A cut, perforated outline (cheap to draw at any zoom, unlike an SVG filter).
+ Array.prototype.forEach.call(d.querySelectorAll('.paper'), function(p){ var r = ragged(); p.style.webkitClipPath = r; p.style.clipPath = r; });
  doorsEl.appendChild(d);
  return d;
 }
@@ -247,17 +246,16 @@ toggleBtn.addEventListener('click', function(){
  else { named.forEach(function(n){ if (!opened[n]) setDoor(n, true, true); }); }
 });
 var mid = document.getElementById('mid');
-function show(){ mid.classList.add('show'); }
-function hide(){ clearTimeout(hideTimer); mid.classList.remove('show'); }
 var hideTimer;
-function hideSoon(){ clearTimeout(hideTimer); hideTimer = setTimeout(hide, 4000); }
-mid.addEventListener('mouseenter', show);
-mid.addEventListener('mouseleave', hide);
+// On touch screens the link shows for 4 seconds, then the instructions return.
+function show(){ mid.classList.add('show'); clearTimeout(hideTimer); if (touch) hideTimer = setTimeout(hide, 4000); }
+function hide(){ clearTimeout(hideTimer); mid.classList.remove('show'); }
+// No hover listeners on touch screens: iPhone Safari would treat the first tap as a hover and drop the click.
+if (!touch) { mid.addEventListener('mouseenter', show); mid.addEventListener('mouseleave', hide); mid.addEventListener('focusout', hide); }
 mid.addEventListener('focusin', show);
-mid.addEventListener('focusout', hide);
-// On phones a tap shows the link for 4 seconds; a tap anywhere else hides it at once.
-mid.addEventListener('click', function(){ show(); if (touch) hideSoon(); });
-document.addEventListener('click', function(e){ if (!mid.contains(e.target)) hide(); });
+mid.addEventListener('click', show);
+// A tap or click anywhere else hides the link at once.
+document.addEventListener('pointerdown', function(e){ if (!mid.contains(e.target)) hide(); });
 
 (function(){
  var now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -268,7 +266,6 @@ document.addEventListener('click', function(e){ if (!mid.contains(e.target)) hid
 })();
 
 /* ---------- Fit the card to the window ---------- */
-var touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
 function fit(){
  var stage = document.getElementById('stage'), card = document.getElementById('card');
  if (touch) {

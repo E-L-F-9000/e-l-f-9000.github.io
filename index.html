@@ -29,6 +29,7 @@ button:focus-visible{outline:3px solid #1E4E52;outline-offset:2px}
  opacity:0;visibility:hidden;transform:scale(.96);transition:opacity .3s ease,transform .3s ease,visibility 0s linear .3s}
 .door.open .win{opacity:1;visibility:visible;transform:scale(1);transition:opacity .45s ease .1s,transform .45s ease .1s,visibility 0s}
 .paper{position:absolute;top:0;left:0;right:0;bottom:0;z-index:-1;border:2.5px dotted rgba(255,250,235,.95);border-radius:2px}
+.win .paper,.back .paper{border-color:transparent}
 .win .paper{background:#FBF3DF;box-shadow:inset 7px 0 10px -5px rgba(80,50,20,.5),inset 0 3px 6px rgba(80,50,20,.3)}
 .door.right .win .paper{box-shadow:inset -7px 0 10px -5px rgba(80,50,20,.5),inset 0 3px 6px rgba(80,50,20,.3)}
 .lbl{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#5E4A3B}
@@ -119,14 +120,25 @@ var opened = {};
 
 function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
-function ragged(){
- var n = 18, step = 100/n, pts = [], i, v;
- function t(){ return (0.6 + Math.random()*0.8).toFixed(2); }
- for (i = 0; i < n; i++) { v = i*step; pts.push(v.toFixed(2)+'% 0%', (v+step/2).toFixed(2)+'% '+t()+'%'); }
- for (i = 0; i < n; i++) { v = i*step; pts.push('100% '+v.toFixed(2)+'%', (100-t())+'% '+(v+step/2).toFixed(2)+'%'); }
- for (i = 0; i < n; i++) { v = 100-i*step; pts.push(v.toFixed(2)+'% 100%', (v-step/2).toFixed(2)+'% '+(100-t())+'%'); }
- for (i = 0; i < n; i++) { v = 100-i*step; pts.push('0% '+v.toFixed(2)+'%', t()+'% '+(v-step/2).toFixed(2)+'%'); }
- return 'polygon('+pts.join(',')+')';
+// Opened perforated paper: even, square tabs along each torn edge. The hinge edge stays uncut,
+// so the flap and the door meet with no gap.
+function ragged(hinge){
+ var n = 14, g = 0.4, pts = [];
+ function dep(){ return (1 + Math.random()*0.4).toFixed(2) + 'px'; }
+ function edge(pt, uncut){
+  pts.push(pt(0, '0px'));
+  if (uncut) return;
+  for (var k = 0; k < n; k++) {
+   var c = (k + 0.5)*100/n, a = c - g*50/n, b = c + g*50/n, d = dep();
+   pts.push(pt(a, '0px'), pt(a, d), pt(b, d), pt(b, '0px'));
+  }
+ }
+ function f(t){ return (+t).toFixed(2) + '%'; }
+ edge(function(t, d){ return f(t) + ' ' + d; }, false);
+ edge(function(t, d){ return 'calc(100% - ' + d + ') ' + f(t); }, hinge === 'right');
+ edge(function(t, d){ return f(100 - t) + ' calc(100% - ' + d + ')'; }, false);
+ edge(function(t, d){ return d + ' ' + f(100 - t); }, hinge === 'left');
+ return 'polygon(' + pts.join(',') + ')';
 }
 
 function makeDoor(key, cx0, cy0, w, h, inner, frontName) {
@@ -148,8 +160,11 @@ function makeDoor(key, cx0, cy0, w, h, inner, frontName) {
  d.querySelector('.win').addEventListener('click', toggle);
  leaf.addEventListener('click', toggle);
  d._label = label;
- // A cut, perforated outline (cheap to draw at any zoom, unlike an SVG filter).
- Array.prototype.forEach.call(d.querySelectorAll('.paper'), function(p){ var r = ragged(); p.style.webkitClipPath = r; p.style.clipPath = r; });
+ // Cut, perforated outlines (cheap to draw at any zoom, unlike an SVG filter). The flap's back is
+ // mirrored, so its hinge edge is on the opposite side from the window's.
+ [['.win .paper', right ? 'right' : 'left'], ['.back .paper', right ? 'left' : 'right']].forEach(function(x){
+  var p = d.querySelector(x[0]), r = ragged(x[1]); p.style.webkitClipPath = r; p.style.clipPath = r;
+ });
  doorsEl.appendChild(d);
  return d;
 }

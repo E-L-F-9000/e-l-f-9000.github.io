@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Family Gift Exchange</title>
+<!-- Phones lay the page out 1248px wide, so the whole card shows and pinch-zoom is the browser's own. -->
+<meta name="viewport" id="vp" content="width=device-width, initial-scale=1">
+<meta name="description" content="Open your door to see who you're giving to this Christmas.">
+<meta property="og:title" content="Family Gift Exchange">
+<meta property="og:description" content="Open your door to see who you're giving to this Christmas.">
+<meta property="og:image" content="https://drive.google.com/thumbnail?id=1ZYkeMLVLkY9agC_AGgl3JKNzJW2YujTB&sz=w1200">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Yesteryear&display=swap">
+<style>
+html,body{margin:0;height:100%;background:#16262B}
+body{overflow:auto;box-sizing:border-box;padding:24px;-webkit-text-size-adjust:100%}
+#stage{position:relative;margin:0 auto}
+#card{position:absolute;top:0;left:0;width:1200px;height:872px;overflow:hidden;background:#F3E7CC;color:#3A2A22;font-family:'Cormorant Garamond',Georgia,serif;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.45)}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid #1E4E52;outline-offset:2px}
+#pic{position:relative;width:1200px;height:800px;flex:none;overflow:hidden}
+#pic img{position:absolute;top:0;left:0;width:1200px;height:800px;object-fit:cover}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.door{position:absolute;-webkit-perspective:500px;perspective:500px}
+.win,.leaf{position:absolute;top:0;left:0;width:100%;height:100%;box-sizing:border-box;border:0;background:transparent;padding:0}
+.win{padding:4px 2px;z-index:0;color:#3A2A22;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ opacity:0;visibility:hidden;transform:scale(.96);transition:opacity .3s ease,transform .3s ease,visibility 0s linear .3s}
+.door.open .win{opacity:1;visibility:visible;transform:scale(1);transition:opacity .45s ease .1s,transform .45s ease .1s,visibility 0s}
+.paper{position:absolute;top:0;left:0;right:0;bottom:0;z-index:-1;border:2.5px dotted rgba(255,250,235,.95);border-radius:2px}
+.door.open .paper,.door.swing .paper{filter:url(#tear)}
+@media (pointer:coarse){.door .paper{filter:none!important}}
+.win .paper{background:#FBF3DF;box-shadow:inset 7px 0 10px -5px rgba(80,50,20,.5),inset 0 3px 6px rgba(80,50,20,.3)}
+.door.right .win .paper{box-shadow:inset -7px 0 10px -5px rgba(80,50,20,.5),inset 0 3px 6px rgba(80,50,20,.3)}
+.lbl{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#5E4A3B}
+.who{font-family:'Yesteryear',cursive;font-size:16px;line-height:1.05;color:#A1232B}
+.note{font-style:italic;font-size:13px;line-height:1.1;color:#5E4A3B}
+.leaf{border-radius:3px;transform-origin:left center;transition:transform .6s ease}
+.door.open .leaf,.door.swing .leaf{-webkit-transform-style:preserve-3d;transform-style:preserve-3d}
+.door.right .leaf{transform-origin:right center}
+.door.open .leaf{transform:rotateY(-152deg)}
+.door.right.open .leaf{transform:rotateY(152deg)}
+.front,.back{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.front{top:4px;left:4px;right:4px;bottom:4px;gap:3px;border:1.5px dashed rgba(246,226,170,.85);border-radius:2px}
+.front .nm{font-family:'Yesteryear',cursive;font-size:17px;line-height:1.1;color:#FBF0D2;text-shadow:0 1px 2px rgba(40,20,10,.55)}
+.back{top:0;left:0;right:0;bottom:0;gap:2px;transform:rotateY(180deg)}
+.door:not(.open):not(.swing) .back{display:none}
+.back .paper{background:#F1E4C3;background-image:linear-gradient(90deg,#FCF5E3 0%,#F1E4C3 55%,#D2BC8C 88%,#B89F6C 100%);box-shadow:-3px 5px 10px rgba(30,20,10,.4)}
+.door.right .back .paper{background-image:linear-gradient(90deg,#B89F6C 0%,#D2BC8C 12%,#F1E4C3 45%,#FCF5E3 100%);box-shadow:3px 5px 10px rgba(30,20,10,.4)}
+.back .nm{font-family:'Yesteryear',cursive;font-size:17px;line-height:1.1;color:#5E4A3B}
+
+#starglow{position:absolute;left:56%;top:8.8%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .5s ease;
+ background:radial-gradient(circle,rgba(255,250,225,.98) 0%,rgba(255,232,160,.6) 22%,rgba(255,210,120,.18) 48%,rgba(255,200,100,0) 70%)}
+#starglow.on{opacity:1}
+
+#snow{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.flake{position:absolute}
+.flake i{display:block;border-radius:50%;background:#FFFDF5;box-shadow:0 0 4px rgba(255,255,255,.8)}
+@keyframes gxFallA{0%{transform:translate(0,-30px);opacity:0}6%{opacity:1}94%{opacity:1}100%{transform:translate(-90px,830px);opacity:0}}
+@keyframes gxFallB{0%{transform:translate(0,-30px);opacity:0}6%{opacity:1}94%{opacity:1}100%{transform:translate(-35px,830px);opacity:0}}
+@keyframes gxFallC{0%{transform:translate(0,-30px);opacity:0}6%{opacity:1}94%{opacity:1}100%{transform:translate(30px,830px);opacity:0}}
+@keyframes gxFallD{0%{transform:translate(0,-30px);opacity:0}6%{opacity:1}94%{opacity:1}100%{transform:translate(85px,830px);opacity:0}}
+@keyframes gxSwayS{from{transform:translateX(-6px)}to{transform:translateX(6px)}}
+@keyframes gxSwayM{from{transform:translateX(-14px)}to{transform:translateX(14px)}}
+@keyframes gxSwayL{from{transform:translateX(-24px)}to{transform:translateX(24px)}}
+
+#foot{flex:1;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:20px;padding:0 28px;border-top:3px solid #C9A24A}
+#foot h1{margin:0;justify-self:start;white-space:nowrap;font-family:'Yesteryear',cursive;font-weight:400;font-size:29px;line-height:1;color:#A1232B}
+#mid{position:relative;width:400px;height:48px}
+#hint,#ctl{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;transition:opacity .35s ease}
+#hint{margin:0;text-align:center;font-style:italic;font-size:19px;pointer-events:none}
+#ctl{opacity:0;pointer-events:none}
+#mid.show #hint{opacity:0}
+#mid.show #ctl{opacity:1;pointer-events:auto}
+#toggle{min-height:44px;padding:0 12px;border:0;background:transparent;color:#5E4A3B;font-style:italic;font-size:17px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(94,74,59,.5)}
+#count{justify-self:end;display:flex;align-items:baseline;gap:8px;padding:5px 16px 6px;border:1px solid #C9A24A;border-radius:3px;box-shadow:inset 0 0 0 3px #F3E7CC,inset 0 0 0 4px rgba(201,162,74,.55)}
+#count b{font-family:'Yesteryear',cursive;font-weight:400;font-size:28px;line-height:1;color:#A1232B}
+#count span{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#5E4A3B}
+
+@media (prefers-reduced-motion: reduce){.win,.leaf,#starglow{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="stage"><div id="card">
+<div id="pic">
+<img id="art" alt="Vintage Christmas card: an angel with a trumpet over a snowy village church at dusk, with the words Wishing You a Glorious Christmas and a Happy New Year" src="https://drive.google.com/thumbnail?id=1ZYkeMLVLkY9agC_AGgl3JKNzJW2YujTB&sz=w1600">
+<svg aria-hidden="true" width="0" height="0" style="position:absolute"><filter id="tear" x="-8%" y="-8%" width="116%" height="116%"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed="7" result="noise"></feTurbulence><feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap></filter></svg>
+<div id="starglow" aria-hidden="true"></div>
+<div id="doors"></div>
+<div id="snow" aria-hidden="true"></div>
+</div>
+<div id="foot">
+<h1 id="title">Family Gift Exchange</h1>
+<div id="mid">
+<p id="hint">Search the picture for your name, then open your door.</p>
+<div id="ctl"><button id="toggle" type="button">Show me everyone</button></div>
+</div>
+<div id="count" role="note"><b id="cnum"></b><span id="clbl"></span></div>
+</div>
+<div class="sr" id="list" aria-live="off"></div>
+</div></div>
+
+<script>
+// The sheet's script publishes this year's pairings here (first names only).
+var FEED = 'https://script.google.com/macros/s/AKfycbzUYef0UB_Vp5N_he_UJQx8tYlkBO44qAo1GSGg8YUjV7czOR53dnLBvBnXkVbZGyp3/exec?format=json';
+
+// Door centres, as a percentage of the picture's width and height. Spare spots take anyone new.
+var SPOTS = {
+ Molly:[4.9,17.6], Pete:[3.9,50.8], Ben:[7.2,74.2], Joy:[15.0,87.9], Harris:[26.0,90.8], Laura:[29.3,76.2],
+ Liz:[19.5,68.4], Glenn:[48.2,87.9], Olivia:[36.5,5.9], Michael:[65.8,5.9], Henry:[71.3,78.1], Chris:[72.3,55.7],
+ Mary:[82.0,68.4], Alex:[94.4,81.1], Meagan:[91.1,54.7]
+};
+var SPARE = [[40.5,77.5],[60.6,74.5],[94.0,30.5],[27.0,8.0]];
+var STAR = '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16"><path d="M8 0 L9.3 6.7 L16 8 L9.3 9.3 L8 16 L6.7 9.3 L0 8 L6.7 6.7Z" fill="COLOR"></path></svg>';
+
+var doorsEl = document.getElementById('doors');
+var named = [];
+var opened = {};
+
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+function makeDoor(key, cx0, cy0, w, h, inner, frontName) {
+ var hw = w/2, hh = h/2;
+ var cx = Math.min(Math.max(cx0, hw+0.1), 99.9-hw), cy = Math.min(Math.max(cy0, hh+0.1), 99.9-hh);
+ var right = (cx-hw) < w*0.9;
+ var label = frontName ? frontName + "'s door" : 'the hidden door';
+ var d = document.createElement('div');
+ d.className = 'door' + (right ? ' right' : '');
+ d.style.cssText = 'left:'+(cx-hw).toFixed(2)+'%;top:'+(cy-hh).toFixed(2)+'%;width:'+w+'%;height:'+h+'%';
+ d.innerHTML =
+  '<button type="button" class="win" aria-label="Close '+esc(label)+'"><span class="paper" aria-hidden="true"></span>'+inner+'</button>'+
+  '<button type="button" class="leaf" aria-expanded="false" aria-label="Open '+esc(label)+'">'+
+   '<span class="front">'+STAR.replace('COLOR','#F2DC9A')+(frontName?'<span class="nm">'+esc(frontName)+'</span>':'')+'</span>'+
+   '<span class="back" aria-hidden="true"><span class="paper"></span>'+STAR.replace('COLOR','#5E4A3B')+(frontName?'<span class="nm">'+esc(frontName)+'</span>':'')+'</span>'+
+  '</button>';
+ var leaf = d.querySelector('.leaf');
+ function toggle(){ setDoor(key, !opened[key], false); }
+ d.querySelector('.win').addEventListener('click', toggle);
+ leaf.addEventListener('click', toggle);
+ d._label = label;
+ doorsEl.appendChild(d);
+ return d;
+}
+
+var doorEls = {};
+var DATA = { year: '', givers: [] };
+var SECRET = '_secret';
+function build(){
+var spare = 0;
+DATA.givers.forEach(function(g){
+ var p = SPOTS[g.name] || SPARE[spare++] || [50,50];
+ var inner = g.roo
+  ? '<span class="lbl">Roo-Gen</span><span class="who">'+esc(g.roo)+'</span><span class="lbl" style="margin-top:1px">All Adults</span><span class="who">'+esc(g.all||'')+'</span>'
+  : '<span class="lbl">gives to</span><span class="who">'+esc(g.all||'')+'</span>';
+ doorEls[g.name] = makeDoor(g.name, p[0], p[1], 7.2, 10, inner, g.name);
+ named.push(g.name);
+});
+doorEls[SECRET] = makeDoor(SECRET, 81.4, 88.6, 10.5, 10,
+ '<span class="note">Made with love,</span><span class="who" style="font-size:17px">Chris, Liz,</span><span class="who" style="font-size:17px">and Kids</span>', '');
+
+}
+function allNamedOpen(){ return named.length && named.every(function(n){ return opened[n]; }); }
+
+function setDoor(key, isOpen, shortcut){
+ var before = allNamedOpen();
+ opened[key] = isOpen;
+ var d = doorEls[key];
+ d.classList.add('swing'); clearTimeout(d._swing);
+ d._swing = setTimeout(function(){ d.classList.remove('swing'); }, 700);
+ d.classList.toggle('open', isOpen);
+ d.querySelector('.leaf').setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+ d.querySelector('.leaf').setAttribute('aria-label', (isOpen ? 'Close ' : 'Open ') + d._label);
+ if (key === SECRET && isOpen) ringBells();
+ if (!shortcut && !before && allNamedOpen()) snow();
+ updateToggle();
+}
+
+/* ---------- Bells and the star, for the hidden door ---------- */
+var ac = null;
+function audio(){
+ if (!ac) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ac = new AC(); }
+ if (ac.state === 'suspended') ac.resume();
+ return ac;
+}
+function tone(freq, at, dur, gain){
+ var t = ac.currentTime + at, o = ac.createOscillator(), a = ac.createGain();
+ o.type = 'sine'; o.frequency.setValueAtTime(freq, t); o.connect(a); a.connect(ac.destination);
+ a.gain.setValueAtTime(0.0001, t); a.gain.exponentialRampToValueAtTime(gain, t + 0.005); a.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+ o.start(t); o.stop(t + dur + 0.05);
+}
+function bell(freq, at){
+ [[0.5,0.5],[1,1],[1.19,0.45],[1.5,0.35],[2,0.5],[2.52,0.2],[3.01,0.12]].forEach(function(p){
+  tone(freq*p[0], at, 2.2*(p[0] < 1.2 ? 1 : 0.6), 0.09*p[1]);
+ });
+}
+var starTimer;
+function ringBells(){
+ var t = 0;
+ if (audio()) {
+  // The opening of the old French carol tune: Ding dong merrily on high.
+  [[392,1],[392,1],[440,.5],[392,.5],[369.99,.5],[329.63,.5],[293.66,2]].forEach(function(n){ bell(n[0], t); t += n[1]*0.42; });
+ } else { t = 2.9; }
+ var g = document.getElementById('starglow');
+ g.classList.add('on'); clearTimeout(starTimer);
+ starTimer = setTimeout(function(){ g.classList.remove('on'); }, t*1000 + 1600);
+}
+
+/* ---------- Snow, once, when the last door is found by hand ---------- */
+var snowTimer;
+function snow(){
+ if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+ var box = document.getElementById('snow'); box.innerHTML = '';
+ var falls = ['gxFallA','gxFallB','gxFallC','gxFallD'], sways = ['gxSwayS','gxSwayM','gxSwayL'];
+ var n = Math.min(innerWidth, innerHeight) < 500 ? 110 : 190;
+ var html = '';
+ for (var i = 0; i < n; i++) {
+  var depth = Math.random(), size = 2 + depth*depth*8, dur = 9 - depth*4 + Math.random()*2.5;
+  html += '<span class="flake" style="left:'+(Math.random()*104-2).toFixed(1)+'%;top:'+(-Math.random()*60).toFixed(0)+'px;animation:'+
+   falls[Math.floor(Math.random()*4)]+' '+dur.toFixed(2)+'s linear '+(Math.random()*4.5).toFixed(2)+'s 1 both">'+
+   '<i style="width:'+size.toFixed(1)+'px;height:'+size.toFixed(1)+'px;opacity:'+(0.55+depth*0.45).toFixed(2)+';'+
+   (size > 7 ? 'filter:blur(1.2px);' : '')+'animation:'+sways[Math.floor(Math.random()*3)]+' '+(1.2+Math.random()*2.2).toFixed(2)+
+   's ease-in-out '+(-Math.random()*3).toFixed(2)+'s infinite alternate"></i></span>';
+ }
+ box.innerHTML = html;
+ clearTimeout(snowTimer);
+ snowTimer = setTimeout(function(){ box.innerHTML = ''; }, 16500);
+}
+
+/* ---------- Footer: countdown and the quiet show-everyone link ---------- */
+var toggleBtn = document.getElementById('toggle');
+function updateToggle(){ toggleBtn.textContent = allNamedOpen() ? 'Close them all' : 'Show me everyone'; }
+toggleBtn.addEventListener('click', function(){
+ if (allNamedOpen()) { Object.keys(doorEls).forEach(function(k){ if (opened[k]) setDoor(k, false, true); }); }
+ else { named.forEach(function(n){ if (!opened[n]) setDoor(n, true, true); }); }
+});
+var mid = document.getElementById('mid');
+function show(){ mid.classList.add('show'); }
+function hide(){ mid.classList.remove('show'); }
+mid.addEventListener('mouseenter', show);
+mid.addEventListener('mouseleave', hide);
+mid.addEventListener('focusin', show);
+mid.addEventListener('focusout', hide);
+mid.addEventListener('click', show);
+
+(function(){
+ var now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+ var x = new Date(now.getFullYear(), 11, 25); if (today > x) x = new Date(now.getFullYear()+1, 11, 25);
+ var days = Math.round((x - today)/86400000);
+ document.getElementById('cnum').textContent = days === 0 ? 'Today' : days;
+ document.getElementById('clbl').textContent = days === 0 ? 'is Christmas Day' : (days === 1 ? 'day until Christmas' : 'days until Christmas');
+})();
+
+/* ---------- Fit the card to the window ---------- */
+var touch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+function fit(){
+ var stage = document.getElementById('stage'), card = document.getElementById('card');
+ if (touch) {
+  // Phones and tablets: lay the page out 1248px wide (card plus margins) and let the browser zoom it.
+  document.getElementById('vp').setAttribute('content', 'width=1248');
+  card.style.zoom = ''; stage.style.width = '1200px'; stage.style.height = '872px';
+  stage.style.marginTop = Math.max(0, (innerHeight - 48 - 872) / 2) + 'px';
+  return;
+ }
+ // Desktop: fit the card in the window with an even margin, using CSS zoom (never transform: scale).
+ var s = Math.min((innerWidth - 48) / 1200, (innerHeight - 48) / 872);
+ card.style.zoom = s;
+ stage.style.width = (1200*s) + 'px'; stage.style.height = (872*s) + 'px';
+ stage.style.marginTop = Math.max(0, (innerHeight - 48 - 872*s) / 2) + 'px';
+}
+addEventListener('resize', fit); fit();
+
+function load(tries){
+ var hint = document.getElementById('hint');
+ fetch(FEED).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(d){
+  DATA = d;
+  build();
+  document.getElementById('title').textContent = 'Family Gift Exchange ' + DATA.year;
+  // A plain list of every pairing, for screen readers.
+  document.getElementById('list').textContent = DATA.givers.map(function(g){
+   return g.roo ? g.name+' gives to '+g.roo+' in Roo-Gen and to '+g.all+' in All Adults.' : g.name+' gives to '+g.all+'.';
+  }).join(' ');
+  updateToggle();
+ }).catch(function(){
+  if (tries < 2) { setTimeout(function(){ load(tries + 1); }, 1500); return; }
+  hint.textContent = "This year's names didn't load. Please refresh the page.";
+ });
+}
+load(0);
+</script>
+</body>
+</html>

@@ -120,6 +120,16 @@ var opened = {};
 
 function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
+function ragged(){
+ var n = 18, step = 100/n, pts = [], i, v;
+ function t(){ return (0.6 + Math.random()*0.8).toFixed(2); }
+ for (i = 0; i < n; i++) { v = i*step; pts.push(v.toFixed(2)+'% 0%', (v+step/2).toFixed(2)+'% '+t()+'%'); }
+ for (i = 0; i < n; i++) { v = i*step; pts.push('100% '+v.toFixed(2)+'%', (100-t())+'% '+(v+step/2).toFixed(2)+'%'); }
+ for (i = 0; i < n; i++) { v = 100-i*step; pts.push(v.toFixed(2)+'% 100%', (v-step/2).toFixed(2)+'% '+(100-t())+'%'); }
+ for (i = 0; i < n; i++) { v = 100-i*step; pts.push('0% '+v.toFixed(2)+'%', t()+'% '+(v-step/2).toFixed(2)+'%'); }
+ return 'polygon('+pts.join(',')+')';
+}
+
 function makeDoor(key, cx0, cy0, w, h, inner, frontName) {
  var hw = w/2, hh = h/2;
  var cx = Math.min(Math.max(cx0, hw+0.1), 99.9-hw), cy = Math.min(Math.max(cy0, hh+0.1), 99.9-hh);
@@ -139,6 +149,8 @@ function makeDoor(key, cx0, cy0, w, h, inner, frontName) {
  d.querySelector('.win').addEventListener('click', toggle);
  leaf.addEventListener('click', toggle);
  d._label = label;
+ // Phones skip the paper filter (memory), so give the paper a cut, perforated outline instead.
+ if (touch) Array.prototype.forEach.call(d.querySelectorAll('.paper'), function(p){ var r = ragged(); p.style.webkitClipPath = r; p.style.clipPath = r; });
  doorsEl.appendChild(d);
  return d;
 }
@@ -236,12 +248,16 @@ toggleBtn.addEventListener('click', function(){
 });
 var mid = document.getElementById('mid');
 function show(){ mid.classList.add('show'); }
-function hide(){ mid.classList.remove('show'); }
+function hide(){ clearTimeout(hideTimer); mid.classList.remove('show'); }
+var hideTimer;
+function hideSoon(){ clearTimeout(hideTimer); hideTimer = setTimeout(hide, 4000); }
 mid.addEventListener('mouseenter', show);
 mid.addEventListener('mouseleave', hide);
 mid.addEventListener('focusin', show);
 mid.addEventListener('focusout', hide);
-mid.addEventListener('click', show);
+// On phones a tap shows the link for 4 seconds; a tap anywhere else hides it at once.
+mid.addEventListener('click', function(){ show(); if (touch) hideSoon(); });
+document.addEventListener('click', function(e){ if (!mid.contains(e.target)) hide(); });
 
 (function(){
  var now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
